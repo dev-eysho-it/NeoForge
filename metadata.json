@@ -1,0 +1,7 @@
+{
+  "name": "Forge",
+  "description": "A cyberpunk-themed dashboard displaying the status and documentation for the NeuroForge platform, showcasing its plugins and system architecture.",
+  "requestFramePermissions": [
+    "microphone"
+  ]
+}

@@ -1,0 +1,114 @@
+<div class="flex h-[calc(100vh-4rem)] bg-gray-900 text-gray-200 font-mono">
+      <!-- Main Chat Area -->
+      <main class="flex-1 flex flex-col relative">
+        <!-- Header -->
+        <header class="flex items-center justify-between p-3 border-b border-gray-700 bg-gray-800/50">
+          <div class="flex items-center gap-3">
+            <h1 class="text-lg font-orbitron text-cyan-300">{{ selectedModelName() }}</h1>
+            @if (webLlmService.isReady()) {
+              <span class="flex items-center gap-1.5 text-xs text-green-400">
+                <span class="w-2 h-2 rounded-full bg-green-500 animate-pulse"></span>
+                Ready
+              </span>
+            } @else if (webLlmService.detailedProgress(); as progress) {
+              <span class="text-xs text-yellow-400">Loading... ({{ (progress.progress * 100).toFixed(0) }}%)</span>
+            } @else {
+              <span class="text-xs text-red-400">Not Loaded</span>
+            }
+          </div>
+          <div class="flex items-center gap-2">
+            @if (performanceReport(); as report) {
+              <div class="text-xs text-gray-400 hidden sm:block">
+                <span>Prefill: {{ report.prefill.toFixed(1) }} t/s</span>
+                <span class="mx-1">|</span>
+                <span>Decode: {{ report.decode.toFixed(1) }} t/s</span>
+              </div>
+            }
+            <button (click)="toggleSettings()" class="p-2 rounded-md hover:bg-gray-700 transition-colors" title="Chat Settings">
+              <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M11.49 3.17c-.38-1.56-2.6-1.56-2.98 0a1.532 1.532 0 01-2.286.948c-1.372-.836-2.942.734-2.106 2.106.54.886.061 2.042-.947 2.287-1.561.379-1.561 2.6 0 2.978a1.532 1.532 0 01.947 2.287c-.836 1.372.734 2.942 2.106 2.106a1.532 1.532 0 012.287.947c.379 1.561 2.6 1.561 2.978 0a1.532 1.532 0 012.287-.947c1.372.836 2.942-.734 2.106-2.106a1.532 1.532 0 01-.947-2.287c1.561-.379 1.561-2.6 0-2.978a1.532 1.532 0 01-.947-2.287c.836-1.372-.734-2.942-2.106-2.106a1.532 1.532 0 01-2.287-.947zM10 13a3 3 0 100-6 3 3 0 000 6z" clip-rule="evenodd" /></svg>
+            </button>
+            <button (click)="resetChat()" class="p-2 rounded-md hover:bg-gray-700 transition-colors" title="Reset Chat">
+              <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M4 4v5h5M20 20v-5h-5M4 4l1.5 1.5A9 9 0 0120.5 15M20 20l-1.5-1.5A9 9 0 003.5 9" /></svg>
+            </button>
+          </div>
+        </header>
+
+        <!-- Messages -->
+        <div #scrollContainer class="flex-1 overflow-y-auto p-4">
+          @if (messages().length === 0) {
+            <div class="flex flex-col items-center justify-center h-full text-gray-500">
+              <svg xmlns="http://www.w3.org/2000/svg" class="h-16 w-16 mb-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1" d="M8 10h.01M12 10h.01M16 10h.01M9 16H5a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v8a2 2 0 01-2 2h-5l-5 5v-5z" /></svg>
+              <p class="font-orbitron">NeuroForge WebLLM</p>
+              <p class="text-sm">Send a message to start the conversation.</p>
+            </div>
+          } @else {
+            <div class="space-y-6">
+              @for (message of messages(); track message.id) {
+                <div class="flex gap-4" [class.flex-row-reverse]="message.role === 'user'">
+                  <div class="w-8 h-8 rounded-full flex-shrink-0" [class.bg-cyan-500]="message.role === 'user'" [class.bg-purple-500]="message.role === 'assistant'"></div>
+                  <div class="max-w-4xl w-full">
+                    <div class="prose prose-sm prose-invert prose-p:text-gray-300 prose-headings:text-cyan-300 prose-strong:text-white prose-code:text-yellow-300 prose-code:before:content-none prose-code:after:content-none prose-pre:bg-gray-950/50" [innerHTML]="message.htmlContent"></div>
+                  </div>
+                </div>
+              }
+            </div>
+          }
+        </div>
+        
+        <!-- Input Area -->
+        <div class="p-4 border-t border-gray-700 bg-gray-900/80 backdrop-blur-sm">
+          <div class="relative">
+            <textarea
+              #inputArea
+              [(ngModel)]="userInput"
+              (keydown.enter)="handleKeydown($event)"
+              placeholder="Type your message..."
+              class="w-full bg-gray-800 border border-gray-600 rounded-lg p-3 pr-24 resize-none focus:ring-2 focus:ring-cyan-500 focus:outline-none transition-all"
+              rows="1"
+              [disabled]="!webLlmService.isReady() || webLlmService.isGenerating()">
+            </textarea>
+            @if (webLlmService.isGenerating()) {
+              <button (click)="interrupt()" class="absolute right-14 top-1/2 -translate-y-1/2 p-2 rounded-md bg-yellow-600 hover:bg-yellow-500 text-white" title="Interrupt generation">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8 7a1 1 0 00-1 1v4a1 1 0 102 0V8a1 1 0 00-1-1zm4 0a1 1 0 00-1 1v4a1 1 0 102 0V8a1 1 0 00-1-1z" clip-rule="evenodd" /></svg>
+              </button>
+            }
+            <button (click)="sendMessage()" [disabled]="!webLlmService.isReady() || webLlmService.isGenerating() || userInput().trim() === ''" class="absolute right-2 top-1/2 -translate-y-1/2 p-2 rounded-md bg-cyan-600 hover:bg-cyan-500 disabled:bg-gray-600 disabled:cursor-not-allowed text-white" title="Send message">
+              <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor"><path d="M10.894 2.553a1 1 0 00-1.788 0l-7 14a1 1 0 001.169 1.409l5-1.428A1 1 0 009 15.571V11a1 1 0 112 0v4.571a1 1 0 00.725.962l5 1.428a1 1 0 001.17-1.408l-7-14z" /></svg>
+            </button>
+          </div>
+        </div>
+
+        <!-- Settings Panel -->
+        @if(isSettingsVisible()) {
+          <div class="absolute top-16 right-4 bg-gray-800 border border-gray-700 rounded-lg shadow-2xl p-4 w-72 z-10 animate-fade-in-down">
+            <h3 class="font-orbitron text-cyan-400 mb-3">Generation Settings</h3>
+            <div class="space-y-4 text-sm">
+              <div>
+                <label for="temp" class="flex justify-between items-center text-gray-300">
+                  <span>Temperature</span>
+                  <span class="text-cyan-300">{{ temperature() }}</span>
+                </label>
+                <input id="temp" type="range" min="0" max="2" step="0.1" [ngModel]="temperature()" (ngModelChange)="temperature.set($event)" class="w-full h-2 bg-gray-700 rounded-lg appearance-none cursor-pointer accent-cyan-500">
+                <p class="text-xs text-gray-500 mt-1">Controls randomness. Higher is more creative.</p>
+              </div>
+              <div>
+                <label for="top_p" class="flex justify-between items-center text-gray-300">
+                  <span>Top P</span>
+                  <span class="text-cyan-300">{{ top_p() }}</span>
+                </label>
+                <input id="top_p" type="range" min="0" max="1" step="0.05" [ngModel]="top_p()" (ngModelChange)="top_p.set($event)" class="w-full h-2 bg-gray-700 rounded-lg appearance-none cursor-pointer accent-cyan-500">
+                <p class="text-xs text-gray-500 mt-1">Nucleus sampling. Considers tokens with top P probability mass.</p>
+              </div>
+               <div>
+                <label class="flex items-center space-x-2 cursor-pointer">
+                  <input type="checkbox" [(ngModel)]="useRag" class="form-checkbox h-4 w-4 text-cyan-600 bg-gray-700 border-gray-600 rounded focus:ring-cyan-500">
+                  <span class="text-gray-300">Enable RAG</span>
+                </label>
+                <p class="text-xs text-gray-500 mt-1">Augment responses with documents from the knowledge base.</p>
+              </div>
+            </div>
+          </div>
+        }
+      </main>
+    </div>
+  

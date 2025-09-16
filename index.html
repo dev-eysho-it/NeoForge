@@ -1,0 +1,237 @@
+<script type="importmap">
+{
+  "imports": {
+    "rxjs": "https://aistudiocdn.com/rxjs@^7.8.2?conditions=es2015",
+    "rxjs/operators": "https://aistudiocdn.com/rxjs@^7.8.2/operators?conditions=es2015",
+    "rxjs/ajax": "https://aistudiocdn.com/rxjs@^7.8.2/ajax?conditions=es2015",
+    "rxjs/webSocket": "https://aistudiocdn.com/rxjs@^7.8.2/webSocket?conditions=es2015",
+    "rxjs/testing": "https://aistudiocdn.com/rxjs@^7.8.2/testing?conditions=es2015",
+    "rxjs/fetch": "https://aistudiocdn.com/rxjs@^7.8.2/fetch?conditions=es2015",
+    "@angular/forms": "https://next.esm.sh/@angular/forms@^20.1.6-0?external=rxjs",
+    "@angular/compiler": "https://next.esm.sh/@angular/compiler@^20.1.6-0?external=rxjs",
+    "@angular/core": "https://next.esm.sh/@angular/core@^20.1.6-0?external=rxjs",
+    "@angular/router": "https://next.esm.sh/@angular/router@^20.1.6-0?external=rxjs",
+    "@angular/platform-browser": "https://next.esm.sh/@angular/platform-browser@^20.1.6-0?external=rxjs",
+    "@angular/common": "https://next.esm.sh/@angular/common@^20.1.6-0?external=rxjs",
+    "three/examples/jsm/postprocessing/SAOPass.js": "https://next.esm.sh/three@^0.180.0/examples/jsm/postprocessing/SAOPass.js",
+    "three/examples/jsm/postprocessing/RenderPass.js": "https://next.esm.sh/three@^0.180.0/examples/jsm/postprocessing/RenderPass.js",
+    "three/examples/jsm/postprocessing/EffectComposer.js": "https://next.esm.sh/three@^0.180.0/examples/jsm/postprocessing/EffectComposer.js",
+    "three/examples/jsm/renderers/CSS2DRenderer.js": "https://next.esm.sh/three@^0.180.0/examples/jsm/renderers/CSS2DRenderer.js",
+    "three/examples/jsm/controls/OrbitControls.js": "https://next.esm.sh/three@^0.180.0/examples/jsm/controls/OrbitControls.js",
+    "three": "https://next.esm.sh/three@^0.180.0",
+    "@mlc-ai/web-llm": "https://esm.sh/@mlc-ai/web-llm@^0.2.79",
+    "@langchain/core/prompts": "https://esm.sh/@langchain/core/prompts?external=@mlc-ai/web-llm",
+    "@langchain/core/output_parsers": "https://esm.sh/@langchain/core/output_parsers?external=@mlc-ai/web-llm",
+    "@langchain/core/runnables": "https://esm.sh/@langchain/core/runnables?external=@mlc-ai/web-llm",
+    "@langchain/core/documents": "https://esm.sh/@langchain/core/documents?external=@mlc-ai/web-llm",
+    "@langchain/community/chat_models/webllm": "https://esm.sh/@langchain/community/chat_models/webllm?external=@mlc-ai/web-llm",
+    "@langchain/community/embeddings/webllm": "https://esm.sh/@langchain/community/embeddings/webllm?external=@mlc-ai/web-llm",
+    "@langchain/community/vectorstores/memory": "https://esm.sh/@langchain/community/vectorstores/memory?external=@mlc-ai/web-llm"
+  }
+}
+</script>
+<script src="https://cdn.tailwindcss.com"></script>
+<script>
+  // Custom Tailwind theme for cyberpunk aesthetic
+  tailwind.config = {
+    theme: {
+      extend: {
+        fontFamily: {
+          'sans': ['Inter', 'sans-serif'],
+          'mono': ['"Courier Prime"', 'monospace'],
+          'orbitron': ['Orbitron', 'sans-serif'],
+        },
+        keyframes: {
+          'glitch-fast': {
+            '0%, 100%': { transform: 'translate(0, 0)', opacity: 1 },
+            '10%': { transform: 'translate(-2px, -1px)' },
+            '20%': { transform: 'translate(2px, 1px)' },
+            '30%': { transform: 'translate(-2px, 1px)' },
+            '40%': { transform: 'translate(2px, -1px)' },
+            '50%': { transform: 'translate(-1px, 2px)' },
+            '60%': { transform: 'translate(1px, -2px)' },
+            '70%': { transform: 'translate(-1px, -2px)', opacity: 0.8 },
+            '80%': { transform: 'translate(1px, 2px)' },
+            '90%': { transform: 'translate(-2px, 1px)' },
+          },
+          'glow': {
+            '0%, 100%': { opacity: 0.7 },
+            '50%': { opacity: 1 },
+          },
+          'fade-in-down': {
+            '0%': { opacity: 0, transform: 'translateY(-10px)' },
+            '100%': { opacity: 1, transform: 'translateY(0)' },
+          },
+          'blink': {
+            '50%': { opacity: 0 }
+          },
+          'tts-pulse': {
+            '0%, 100%': { transform: 'scale(1)' },
+            '50%': { transform: 'scale(1.1)' },
+          }
+        },
+        animation: {
+          'glitch-fast': 'glitch-fast 0.5s linear infinite',
+          'glow': 'glow 2s ease-in-out infinite',
+          'fade-in-down': 'fade-in-down 0.3s ease-out',
+          'blink': 'blink 1s step-end infinite',
+          'tts-pulse': 'tts-pulse 1.5s ease-in-out infinite',
+        },
+      },
+    },
+  };
+</script>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Courier+Prime:ital@0;1&family=Inter:wght@400;700&family=Orbitron:wght@400..900&display=swap" rel="stylesheet">
+<style>
+  body {
+    background-color: #0d0d1a;
+    color: #e0e1dd;
+    font-family: 'Inter', sans-serif;
+  }
+  .text-glow-cyan {
+    text-shadow: 0 0 5px rgba(0, 255, 255, 0.5), 0 0 10px rgba(0, 255, 255, 0.3);
+  }
+  .text-glow-green {
+    text-shadow: 0 0 5px rgba(0, 255, 100, 0.5), 0 0 10px rgba(0, 255, 100, 0.3);
+  }
+  .text-glow-purple {
+     text-shadow: 0 0 5px rgba(192, 132, 252, 0.5), 0 0 10px rgba(192, 132, 252, 0.3);
+  }
+  .svg-glow-cyan {
+    filter: drop-shadow(0 0 3px rgba(0, 255, 255, 0.7));
+  }
+  .hover-glow-cyan:hover {
+     text-shadow: 0 0 8px rgba(0, 255, 255, 0.7), 0 0 15px rgba(0, 255, 255, 0.5);
+  }
+  .border-glow-cyan {
+    box-shadow: 0 0 15px rgba(0, 255, 255, 0.15);
+  }
+  .hover\:border-glow-cyan:hover {
+    box-shadow: 0 0 15px rgba(0, 255, 255, 0.4);
+  }
+  .border-glow-purple {
+     box-shadow: 0 0 15px rgba(192, 132, 252, 0.15);
+  }
+  .animated-gradient-cyan {
+    background: linear-gradient(-45deg, #0ff, #7f00ff, #0ff, #7f00ff);
+    background-size: 400% 400%;
+    animation: gradient 5s ease infinite;
+  }
+  @keyframes gradient {
+	  0% { background-position: 0% 50%; }
+	  50% { background-position: 100% 50%; }
+	  100% { background-position: 0% 50%; }
+  }
+  .holo-grid {
+    background-image:
+      linear-gradient(to right, rgba(0,255,255,0.1) 1px, transparent 1px),
+      linear-gradient(to bottom, rgba(0,255,255,0.1) 1px, transparent 1px);
+    background-size: 2rem 2rem;
+  }
+  .chat-bubble-user {
+    background-color: rgba(0, 255, 255, 0.05);
+    border-color: rgba(0, 255, 255, 0.2);
+    border-width: 1px;
+    clip-path: polygon(0 0, 100% 0, 100% 100%, 10px 100%, 0 90%);
+  }
+  .chat-bubble-ai {
+    background-color: rgba(192, 132, 252, 0.05);
+    border-color: rgba(192, 132, 252, 0.2);
+    border-width: 1px;
+    clip-path: polygon(0 0, calc(100% - 10px) 0, 100% 10px, 100% 100%, 0 100%);
+  }
+  .tts-active-glow {
+    color: #c084fc; /* purple-400 */
+    text-shadow: 0 0 8px rgba(192, 132, 252, 0.7);
+    animation: tts-pulse 1.5s ease-in-out infinite;
+  }
+  /* Custom scrollbar for webkit browsers */
+  ::-webkit-scrollbar {
+    width: 8px;
+  }
+  ::-webkit-scrollbar-track {
+    background: rgba(0, 255, 255, 0.05);
+  }
+  ::-webkit-scrollbar-thumb {
+    background: rgba(0, 255, 255, 0.3);
+    border-radius: 4px;
+  }
+  ::-webkit-scrollbar-thumb:hover {
+    background: rgba(0, 255, 255, 0.5);
+  }
+  
+  /* Panel Corners */
+  .panel-corners {
+    position: relative;
+  }
+  .panel-corners::before, .panel-corners::after {
+    content: '';
+    position: absolute;
+    width: 16px;
+    height: 16px;
+    border-color: rgba(0, 255, 255, 0.4);
+    border-style: solid;
+    transition: all 0.3s ease;
+  }
+  .panel-corners::before {
+    top: -1px;
+    left: -1px;
+    border-width: 1px 0 0 1px;
+  }
+  .panel-corners::after {
+    bottom: -1px;
+    right: -1px;
+    border-width: 0 1px 1px 0;
+  }
+
+  /* Code Editor Overlay Styles */
+  .editor-container {
+    position: relative;
+    height: 100%;
+    width: 100%;
+    overflow: hidden;
+  }
+  .editor-pre, .editor-textarea {
+    margin: 0;
+    padding: 10px;
+    border: 0;
+    font-family: "Courier Prime", monospace;
+    font-size: 14px;
+    line-height: 1.5;
+    white-space: pre;
+    word-wrap: normal;
+    overflow: auto;
+    width: 100%;
+    height: 100%;
+    box-sizing: border-box;
+  }
+  .editor-pre {
+    position: absolute;
+    top: 0;
+    left: 0;
+    pointer-events: none;
+    background: #020409;
+    z-index: 1;
+  }
+  .editor-textarea {
+    position: absolute;
+    top: 0;
+    left: 0;
+    background: transparent;
+    color: transparent;
+    caret-color: white;
+    z-index: 2;
+    resize: none;
+  }
+  .editor-textarea:focus {
+    outline: none;
+  }
+</style>
+<script src="https://cdn.jsdelivr.net/npm/prismjs@1.29.0/prism.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/prismjs@1.29.0/components/prism-css.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/prismjs@1.29.0/components/prism-javascript.min.js"></script>
+<link href="https://cdn.jsdelivr.net/npm/prismjs@1.29.0/themes/prism-okaidia.min.css" rel="stylesheet"/>
+
+<app-root></app-root>

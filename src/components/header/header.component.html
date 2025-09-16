@@ -1,0 +1,16 @@
+<header class="flex flex-col md:flex-row md:justify-between items-start md:items-center gap-4 border-b border-cyan-500/30 pb-4">
+  <a routerLink="/dashboard" class="flex items-center space-x-3">
+    <svg class="w-8 h-8 text-cyan-400 svg-glow-cyan" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M12 8c-2.21 0-4 1.79-4 4s1.79 4 4 4 4-1.79 4-4-1.79-4-4-4z"></path><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1" d="M12 10c-1.105 0-2 .895-2 2s.895 2 2 2 2-.895 2-2-.895-2-2-2z"></path></svg>
+    <h1 class="font-orbitron text-2xl text-cyan-300 text-glow-cyan" data-text="NeuroForge">NeuroForge</h1>
+  </a>
+  <nav class="flex flex-wrap items-center gap-x-6 gap-y-2 font-mono text-sm">
+    <a routerLink="/dashboard" routerLinkActive="text-cyan-300 text-glow-cyan" [routerLinkActiveOptions]="{exact: true}"
+       class="text-gray-400 hover:text-cyan-300 hover-glow-cyan transition-all duration-300">DASHBOARD</a>
+    <a routerLink="/web-llm" routerLinkActive="text-cyan-300 text-glow-cyan"
+       class="text-gray-400 hover:text-cyan-300 hover-glow-cyan transition-all duration-300">WEB-LLM</a>
+    <a routerLink="/model-manager" routerLinkActive="text-cyan-300 text-glow-cyan"
+       class="text-gray-400 hover:text-cyan-300 hover-glow-cyan transition-all duration-300">MODELS</a>
+    <a routerLink="/admin" routerLinkActive="text-cyan-300 text-glow-cyan"
+       class="text-gray-400 hover:text-cyan-300 hover-glow-cyan transition-all duration-300">ADMIN</a>
+  </nav>
+</header>

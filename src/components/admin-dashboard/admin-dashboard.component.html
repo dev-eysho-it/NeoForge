@@ -1,0 +1,118 @@
+<div class="max-w-7xl mx-auto">
+  <h2 class="font-orbitron text-3xl text-center text-cyan-400 text-glow-cyan mb-8">Admin Control Panel</h2>
+  
+  <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
+
+    <!-- RAG Document Manager -->
+    <div class="bg-black/30 border border-purple-500/30 p-6 backdrop-blur-sm space-y-6">
+      <h3 class="font-orbitron text-xl text-purple-300 text-glow-purple">Knowledge Base Management (RAG)</h3>
+      
+      <div>
+        <label for="new-doc" class="block text-sm font-mono text-gray-400 mb-2">Add New Document</label>
+        <textarea 
+          id="new-doc"
+          rows="6"
+          class="w-full bg-gray-900/70 border border-gray-600 rounded-md p-2 focus:outline-none focus:ring-2 focus:ring-purple-500"
+          placeholder="Paste or write text content here to add to the knowledge base..."
+          [value]="newDocumentContent()"
+          (input)="onNewDocumentContentInput($event)">
+        </textarea>
+        <button
+          (click)="addDocument()"
+          [disabled]="!newDocumentContent().trim()"
+          class="mt-2 w-full px-4 py-2 font-orbitron bg-purple-600/50 border border-purple-400 text-purple-200 hover:bg-purple-500/50 rounded-md font-bold transition-colors disabled:opacity-50 disabled:cursor-not-allowed">
+          Ingest Document
+        </button>
+      </div>
+
+      <div>
+        <h4 class="text-lg font-mono text-gray-300 border-b border-gray-700 pb-2 mb-3">Stored Documents</h4>
+        @if (ragService.documents().length > 0) {
+          <div class="space-y-3 max-h-96 overflow-y-auto pr-2">
+            @for (doc of ragService.documents(); track doc.id) {
+              <div class="bg-gray-900/50 p-3 rounded-md border border-gray-700 flex justify-between items-start">
+                <p class="text-sm text-gray-400 flex-1 break-words pr-4">
+                  {{ doc.content.substring(0, 150) }}{{ doc.content.length > 150 ? '...' : '' }}
+                </p>
+                <button (click)="ragService.deleteDocument(doc.id)" title="Delete document" class="text-red-500 hover:text-red-400 transition-colors p-1 rounded-full bg-red-900/30 hover:bg-red-800/50">
+                  <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" /></svg>
+                </button>
+              </div>
+            }
+          </div>
+        } @else {
+          <p class="text-sm text-gray-500 text-center py-4 bg-gray-900/30 rounded-md">
+            Knowledge base is empty.
+          </p>
+        }
+      </div>
+    </div>
+    
+    <!-- Platform Settings -->
+    <div class="bg-black/30 border border-cyan-500/30 p-6 backdrop-blur-sm space-y-6">
+       <h3 class="font-orbitron text-xl text-cyan-300 text-glow-cyan">Platform Settings</h3>
+
+       <!-- Default Text Model -->
+       <div>
+         <label for="text-model" class="block text-sm font-mono text-gray-400 mb-2">Default Text Model</label>
+         <select id="text-model"
+           [ngModel]="settingsService.defaultTextModelId()"
+           (ngModelChange)="settingsService.setDefaultTextModelId($event)"
+           class="w-full bg-gray-900/70 border border-gray-600 rounded-md p-2 focus:outline-none focus:ring-2 focus:ring-cyan-500 text-cyan-300">
+           @for(model of webLlmService.availableModels(); track model.id) {
+             <option [value]="model.id">{{ model.name }}</option>
+           }
+         </select>
+       </div>
+       
+       <!-- Auto-load setting -->
+       <div class="flex items-center justify-between py-2">
+         <label for="auto-load-model" class="text-sm font-mono text-gray-400">Auto-load active model on startup</label>
+         <label class="relative inline-flex items-center cursor-pointer">
+           <input type="checkbox" id="auto-load-model" 
+             [ngModel]="settingsService.autoLoadDefaultModel()" 
+             (ngModelChange)="settingsService.setAutoLoadDefaultModel($event)"
+             class="sr-only peer">
+           <div class="w-11 h-6 bg-gray-600 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:start-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-cyan-600"></div>
+         </label>
+       </div>
+
+       <!-- Default Embedding Model -->
+       <div>
+         <label for="embed-model" class="block text-sm font-mono text-gray-400 mb-2">Default Embedding Model (for RAG)</label>
+         <select id="embed-model" 
+           [ngModel]="settingsService.defaultEmbeddingModelId()"
+           (ngModelChange)="settingsService.setDefaultEmbeddingModelId($event)"
+           class="w-full bg-gray-900/70 border border-gray-600 rounded-md p-2 focus:outline-none focus:ring-2 focus:ring-cyan-500 text-cyan-300">
+           <option value="all-MiniLM-L6-v2">all-MiniLM-L6-v2 (local)</option>
+           <option value="text-embedding-ada-002" disabled>text-embedding-ada-002 (API - Not Impl.)</option>
+         </select>
+       </div>
+       
+       <!-- Default TTS Voice -->
+       <div>
+         <label for="tts-voice" class="block text-sm font-mono text-gray-400 mb-2">Default Text-to-Speech Voice</label>
+         <select id="tts-voice" 
+           [ngModel]="settingsService.defaultTtsVoiceUri()"
+           (ngModelChange)="settingsService.setDefaultTtsVoiceUri($event)"
+           class="w-full bg-gray-900/70 border border-gray-600 rounded-md p-2 focus:outline-none focus:ring-2 focus:ring-cyan-500 text-cyan-300">
+           <option value="">Browser Default</option>
+           @for(voice of availableVoices(); track voice.voiceURI) {
+             <option [value]="voice.voiceURI">{{ voice.name }} ({{ voice.lang }})</option>
+           }
+         </select>
+       </div>
+       
+       <!-- Save Button -->
+       <div class="pt-4">
+         <button (click)="saveSettings()" [disabled]="saveStatus() !== 'idle'" class="w-full font-orbitron bg-cyan-500/20 border border-cyan-400 text-cyan-300 py-3 px-6 hover:bg-cyan-500/40 hover:text-white transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed">
+           @switch (saveStatus()) {
+             @case ('idle') { <span>Save Settings</span> }
+             @case ('saving') { <span>Saving...</span> }
+             @case ('saved') { <span>Settings Saved!</span> }
+           }
+         </button>
+       </div>
+    </div>
+  </div>
+</div>

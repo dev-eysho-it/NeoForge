@@ -1,0 +1,43 @@
+<div class="bg-black/30 border border-cyan-500/30 p-6 backdrop-blur-sm panel-corners">
+  <h2 class="font-orbitron text-2xl text-cyan-400 text-glow-cyan mb-4">Hardware Link</h2>
+
+  @switch (gpuService.isWebGpuSupported()) {
+    @case (true) {
+      <div class="space-y-3 font-mono text-sm">
+        <div class="flex items-center gap-3">
+          <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-green-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
+          <span class="text-green-300">WebGPU Support: ENABLED</span>
+        </div>
+        @if (gpuService.adapterInfo(); as info) {
+          <div class="pl-8 text-xs text-gray-400 border-l border-cyan-500/20 ml-2.5">
+            @if(info.vendor) { <p><span class="text-cyan-400">Vendor:</span> {{ info.vendor }}</p> }
+            @if(info.architecture) { <p><span class="text-cyan-400">Architecture:</span> {{ info.architecture }}</p> }
+            @if (info.description) {
+              <p><span class="text-cyan-400">Description:</span> {{ info.description }}</p>
+            }
+          </div>
+        }
+        <p class="text-xs text-gray-500 pt-2">Local AI models will be accelerated by your GPU for maximum performance.</p>
+      </div>
+    }
+    @case (false) {
+      <div class="space-y-3 font-mono text-sm">
+        <div class="flex items-center gap-3">
+           <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-red-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
+          <span class="text-red-300">WebGPU Support: DISABLED</span>
+        </div>
+        <div class="pl-8 text-xs text-gray-400 border-l border-red-500/20 ml-2.5">
+           <p>Your browser does not support WebGPU or it is disabled.</p>
+           <p class="mt-2">For best performance, use a recent version of Chrome or Edge and ensure hardware acceleration is enabled.</p>
+        </div>
+         <p class="text-xs text-gray-500 pt-2">AI model performance may be degraded.</p>
+      </div>
+    }
+    @default {
+      <div class="flex items-center gap-3 font-mono text-sm text-yellow-300">
+        <svg class="animate-spin h-5 w-5" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path></svg>
+        <span>Probing hardware interface...</span>
+      </div>
+    }
+  }
+</div>
